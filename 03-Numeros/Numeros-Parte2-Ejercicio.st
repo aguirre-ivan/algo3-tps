@@ -364,58 +364,87 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:32:49'!
-* aMultiplier 
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:55'!
+// aDivisor 
 	
-	(aMultiplier isKindOf: Fraccion) ifTrue: [ 
-		| newNumerator newDenominator |
-		
-		newNumerator := aMultiplier numerator * self.
-		newDenominator := aMultiplier denominator.
-		
-		^ newNumerator / newDenominator. ].
+	^self class with: value // aDivisor integerValue! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 21:06:56'!
+beAddedToAFraction: anAugend
+
+	^ anAugend beAddedToAnEntero: self.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/21/2021 21:16:47'!
+beAddedToAnEntero: anAugend
+
+	^ Entero with: anAugend integerValue + self integerValue.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 22:26:43'!
+beDividedByAFraction: aDividend
+
+	| quotientNumerator quotientDenominator |
 	
-	(aMultiplier isKindOf: Entero) ifTrue: [
-		^ self class with: value * aMultiplier integerValue. ].
-	! !
+	quotientNumerator := aDividend numerator.
+	quotientDenominator := aDividend denominator * self.
+	
+	^ quotientNumerator / quotientDenominator.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:04:20'!
+beDividedByAnEntero: aDividend
+
+	^ Fraccion with: aDividend 	over: self.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 21:39:51'!
+beMultipliedByAFraction: aMultiplier
+
+	^ aMultiplier beMultipliedByAnEntero: self.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:22:50'!
+beMultipliedByAnEntero: aMultiplier
+
+	^ Entero with: aMultiplier integerValue * self integerValue.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 22:27:47'!
+beSubstractedToAFraction: aMinuend
+
+	| differenceNumerator differenceDenominator |
+	
+	differenceNumerator := aMinuend numerator - (self * aMinuend denominator).
+	differenceDenominator := aMinuend denominator.
+	
+	^ differenceNumerator / differenceDenominator.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 22:15:30'!
+beSubstractedToAnEntero: aMinuend
+
+	^ Entero with: aMinuend integerValue - self integerValue.! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
+greatestCommonDivisorWith: anEntero 
+	
+	^self class with: (value gcd: anEntero integerValue)! !
+
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 05:24:19'!
+* aMultiplicand 
+	
+	^ aMultiplicand beMultipliedByAnEntero: self.! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/21/2021 21:18:42'!
 + anAdder 
 	
 	^ anAdder beAddedToAnEntero: self.! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:14:14'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 04:57:58'!
 - aSubtrahend 
 	
-	(aSubtrahend isKindOf: Fraccion) ifTrue: [ 
-		| newNumerator newDenominator |
-		
-		newNumerator := aSubtrahend denominator * self - aSubtrahend numerator.
-		newDenominator := aSubtrahend denominator.
-		
-		^ newNumerator / newDenominator. ].
-	
-	(aSubtrahend isKindOf: Entero) ifTrue: [
-		^ self class with: value - aSubtrahend integerValue. ].
+	 ^ aSubtrahend beSubstractedToAnEntero: self.
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:53:53'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 05:24:00'!
 / aDivisor 
-	(aDivisor isKindOf: Fraccion) ifTrue: [ 
-		| newNumerator newDenominator |
-		
-		newNumerator := aDivisor denominator * self.
-		newDenominator := aDivisor numerator.
-		
-		^ newNumerator / newDenominator. ].
-	
-	(aDivisor isKindOf: Entero) ifTrue: [
-		^ Fraccion with: self over: aDivisor.].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'ia 10/21/2021 21:16:47'!
-beAddedToAnEntero: anAugend
-
-	^ Entero with: anAugend integerValue + self integerValue.! !
+	^ aDivisor beDividedByAnEntero: self.! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
 fibonacci
@@ -478,17 +507,6 @@ isZero
 	
 	^value = 0! !
 
-
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:55'!
-// aDivisor 
-	
-	^self class with: value // aDivisor integerValue! !
-
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
-greatestCommonDivisorWith: anEntero 
-	
-	^self class with: (value gcd: anEntero integerValue)! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: 'Numeros-Parte2-Ejercicio'!
@@ -515,78 +533,97 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:34:59'!
-* aMultiplier 
-	
-	(aMultiplier isKindOf: Fraccion) ifTrue: [
-		| newNumerator newDenominator |
-		
-		newNumerator := numerator * aMultiplier numerator.
-		newDenominator := denominator * aMultiplier denominator.
-		
-		^ self class with: newNumerator over: newDenominator ]. 
-	
-	(aMultiplier isKindOf: Entero) ifTrue: [ 
-		^ (aMultiplier * self numerator) / self denominator ].! !
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:34:53'!
+beAddedToAFraction: anAugend
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/21/2021 20:27:55'!
-+ anAdder 
-	
-	(anAdder isKindOf: Fraccion) ifTrue: [
-		| newNumerator newDenominator |
-		
-		newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
-		newDenominator := denominator * anAdder denominator.
-		
-		^ self class with: newNumerator over: newDenominator ]. 
-	
-	(anAdder isKindOf: Entero) ifTrue: [ 
-		^ (anAdder * self denominator + self numerator) / self denominator ].
-	
-	self error: 'Imposible hacer esta cuenta'.! !
+	^ anAugend beAddedToAnEntero: self.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:18:05'!
-- aSubtrahend 
-	
-	| newNumerator newDenominator |
-	
-	(aSubtrahend isKindOf: Fraccion) ifTrue: [
-		newNumerator := (numerator * aSubtrahend denominator) - (denominator * aSubtrahend numerator).
-		newDenominator := denominator * aSubtrahend denominator.
-	
-	^ newNumerator / newDenominator ].
-
-	(aSubtrahend isKindOf: Entero) ifTrue: [
-		
-		newNumerator := self numerator - (aSubtrahend * self denominator).
-		newDenominator :=self denominator.
-		
-		^ newNumerator / newDenominator ]. 
-! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 03:58:51'!
-/ aDivisor 
-
-	| newNumerator newDenominator |
-
-	(aDivisor isKindOf: Fraccion) ifTrue: [
-		
-		newNumerator := numerator * aDivisor denominator.
-		newDenominator := denominator * aDivisor numerator.
-		
-		^ self class with: newNumerator over: newDenominator ]. 
-	
-	(aDivisor isKindOf: Entero) ifTrue: [ 
-		
-		newNumerator := self numerator.
-		newDenominator := self denominator * aDivisor.
-		
-		^ newNumerator / newDenominator. ].! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/21/2021 21:15:26'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:45:18'!
 beAddedToAnEntero: anAugend
 
-	^ anAugend * self denominator + self numerator / self denominator.! !
+	| sumNumerator sumDenominator |
+	
+	sumNumerator := anAugend * self denominator + self numerator.
+	sumDenominator := self denominator.
+
+	^ sumNumerator / sumDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 22:25:40'!
+beDividedByAFraction: aDividend
+
+	| quotientNumerator quotientDenominator |
+	
+	quotientNumerator := aDividend numerator * self denominator.
+	quotientDenominator := aDividend denominator * self numerator.
+	
+	^ quotientNumerator / quotientDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:42:34'!
+beDividedByAnEntero: aDividend
+
+	| quotientNumerator quotientDenominator |
+	
+	quotientNumerator := aDividend * self denominator.
+	quotientDenominator := self numerator.
+	
+	^ quotientNumerator / quotientDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 21:59:09'!
+beMultipliedByAFraction: aMultiplier
+
+	^ aMultiplier beMultipliedByAnEntero: self.! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:40:37'!
+beMultipliedByAnEntero: aMultiplier
+
+	| productNumerator productDenominator |
+	
+	productNumerator := aMultiplier * self numerator.
+	productDenominator := self denominator.
+
+	^ productNumerator / productDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 22:24:35'!
+beSubstractedToAFraction: aMinuend
+
+	| differenceNumerator differenceDenominator |
+	
+	differenceNumerator := (aMinuend numerator * self denominator) - (aMinuend denominator * self numerator).
+	differenceDenominator := aMinuend denominator * self denominator.
+
+	^ differenceNumerator / differenceDenominator.
+	! !
+
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'ia 10/24/2021 05:46:00'!
+beSubstractedToAnEntero: aSubstrahend
+
+	| differenceNumerator differenceDenominator |
+	
+	differenceNumerator := aSubstrahend * self denominator - self numerator.
+	differenceDenominator := self denominator.
+
+	^ differenceNumerator / differenceDenominator.! !
+
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 21:41:20'!
+* aMultiplicand 
+	
+	^ aMultiplicand beMultipliedByAFraction: self.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 21:41:16'!
++ anAdder 
+	
+	^ anAdder beAddedToAFraction: self.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 22:56:06'!
+- aSubtrahend 
+	
+	^ aSubtrahend beSubstractedToAFraction: self.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'ia 10/24/2021 22:56:37'!
+/ aDivisor 
+	
+	^ aDivisor beDividedByAFraction: self.! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!
