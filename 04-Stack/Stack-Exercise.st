@@ -1,4 +1,4 @@
-!classDefinition: #OOStackTest category: #'Stack-Exercise'!
+!classDefinition: #OOStackTest category: 'Stack-Exercise'!
 TestCase subclass: #OOStackTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -137,7 +137,7 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 ! !
 
 
-!classDefinition: #SentenceFinderByPrefixTest category: #'Stack-Exercise'!
+!classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -145,16 +145,59 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	category: 'Stack-Exercise'!
 
 
-!classDefinition: #OOStack category: #'Stack-Exercise'!
+!classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: ''
+	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!OOStack methodsFor: 'accesing' stamp: 'IA 10/31/2021 03:12:54'!
+size
+
+	^ stack size.! !
+
+!OOStack methodsFor: 'accesing' stamp: 'IA 10/31/2021 03:16:40'!
+top
+
+	(stack size = 0) ifTrue: [self signalStackIsEmpty.].
+	
+	^ stack at: stack size.! !
+
+
+!OOStack methodsFor: 'testing' stamp: 'IA 10/31/2021 03:12:16'!
+isEmpty
+
+	^ (stack size = 0).! !
+
+
+!OOStack methodsFor: 'signal errors' stamp: 'IA 10/30/2021 03:35:00'!
+signalStackIsEmpty
+	
+	self error: self class stackEmptyErrorDescription.! !
+
+
+!OOStack methodsFor: 'initialization' stamp: 'IA 10/31/2021 03:12:05'!
+initialize
+	
+	stack := OrderedCollection new.
+	! !
+
+
+!OOStack methodsFor: 'stack management' stamp: 'IA 10/31/2021 03:17:20'!
+pop
+
+	(self isEmpty) ifTrue: [self signalStackIsEmpty.].
+	^ stack removeLast.! !
+
+!OOStack methodsFor: 'stack management' stamp: 'IA 10/31/2021 03:12:43'!
+push: anElement.
+	
+	stack add: anElement.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'OOStack class' category: #'Stack-Exercise'!
+!classDefinition: 'OOStack class' category: 'Stack-Exercise'!
 OOStack class
 	instanceVariableNames: ''!
 
@@ -164,7 +207,7 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #SentenceFinderByPrefix category: #'Stack-Exercise'!
+!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
