@@ -5,139 +5,28 @@ TestCase subclass: #OOLimitedStackTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 03:31:34'!
-test01LimitedStackShouldBeEmptyWhenCreated
+!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 17:47:17'!
+test01SizeLimitCantBeNegative
 
-	| stack |
-	
-	stack := OOLimitedStack with: 5.
-	
-	self assert: stack isEmpty! !
+	self should: [ OOLimitedStack with: -1. ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = OOLimitedStack negativeSizeErrorDescription ].	! !
 
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:09:42'!
-test02PushAddElementsToTheLimitedStack
-
-	| stack |
-	
-	stack := OOLimitedStack with: 5.
-	stack push: 'something'.
-	
-	self deny: stack isEmpty! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:09:58'!
-test03PopRemovesElementsFromTheLimitedStack
-
-	| stack |
-	
-	stack := OOLimitedStack with: 5.
-	stack push: 'something'.
-	stack pop.
-	
-	self assert: stack isEmpty! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:10:05'!
-test04PopReturnsLastPushedObject
+!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 17:48:20'!
+test02FullPushedLimitedStackShouldBeFull
 
 	| stack pushedObject |
 	
-	stack := OOLimitedStack with: 5.
+	stack := OOLimitedStack with: 1.
 	pushedObject := 'something'.
 	stack push: pushedObject.
 	
-	self assert: stack pop = pushedObject! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 03:32:14'!
-test05LimitedStackBehavesLIFO
-
-	| stack firstPushedObject secondPushedObject |
-	
-	stack := OOLimitedStack with: 5.
-	firstPushedObject := 'first'.
-	secondPushedObject := 'second'.
-	
-	stack push: firstPushedObject.
-	stack push: secondPushedObject.
-	
-	self assert: stack pop = secondPushedObject.
-	self assert: stack pop = firstPushedObject.
-	self assert: stack isEmpty 
+	self assert: stack isFull.
 	! !
 
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:10:33'!
-test06TopReturnsLastPushedObject
-
-	| stack pushedObject |
-	
-	stack := OOLimitedStack with: 5.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: stack top = pushedObject.
-	! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:10:47'!
-test07TopDoesNotRemoveObjectFromLimitedStack
-
-	| stack pushedObject |
-	
-	stack := OOLimitedStack with: 5.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: stack size = 1.
-	stack top.
-	self assert: stack size = 1.
-	! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:18:31'!
-test08CanNotPopWhenThereAreNoObjectsInTheLimitedStack
-
-	| stack  |
-	
-	stack := OOLimitedStack with: 5.
-	self
-		should: [ stack pop ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = OOLimitedStack stackEmptyErrorDescription ]
-		
-! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:18:28'!
-test09CanNotPopWhenThereAreNoObjectsInTheLimitedStackAndTheLimitedStackHadObjects
-
-	| stack  |
-	
-	stack := OOLimitedStack with: 5.
-	stack push: 'something'.
-	stack pop.
-	
-	self
-		should: [ stack pop ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = OOLimitedStack stackEmptyErrorDescription ]
-		
-! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 03:31:55'!
-test10CanNotTopWhenThereAreNoObjectsInTheLimitedStack
-
-	| stack  |
-	
-	stack := OOLimitedStack with: 5.
-	self
-		should: [ stack top ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = OOLimitedStack stackEmptyErrorDescription ]
-		
-! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:16:59'!
-test11CanNotPushWhenTheLimitedStackIsFull
+!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 17:48:43'!
+test03CanNotPushWhenTheLimitedStackIsFull
 
 	| stack pushedObject |
 	
@@ -153,21 +42,8 @@ test11CanNotPushWhenTheLimitedStackIsFull
 		
 ! !
 
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:17:13'!
-test12TopReturnsLastPushedObjectInFullLimitedStack
-
-	| stack pushedObject |
-	
-	stack := OOLimitedStack with: 1.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: stack top = pushedObject.
-	! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:24:26'!
-test13CorrectSizeOfFullLimitedStack
+!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 17:49:06'!
+test04CorrectSizeOfFullLimitedStack
 
 	| stack pushedObject |
 	
@@ -178,25 +54,18 @@ test13CorrectSizeOfFullLimitedStack
 	self assert: stack size = 1.
 	! !
 
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/3/2021 11:34:15'!
-test14FullPushedLimitedStackShouldBeFull
+!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 17:49:10'!
+test05TopReturnsLastPushedObjectInAFullLimitedStack
 
 	| stack pushedObject |
 	
 	stack := OOLimitedStack with: 1.
 	pushedObject := 'something'.
+	
 	stack push: pushedObject.
 	
-	self assert: stack isFull.
+	self assert: stack top = pushedObject.
 	! !
-
-!OOLimitedStackTest methodsFor: 'test' stamp: 'IA 11/4/2021 03:59:28'!
-test15SizeLimitCantBeNegative
-
-	self should: [ OOLimitedStack with: -1. ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = OOLimitedStack negativeSizeErrorDescription ].	! !
 
 
 !classDefinition: #OOStackTest category: 'Stack-Exercise'!
@@ -516,7 +385,6 @@ size
 top
 	
 	^ stackTop value.! !
-
 
 
 !OOStack methodsFor: 'signal errors' stamp: 'IA 10/30/2021 03:35:00'!
