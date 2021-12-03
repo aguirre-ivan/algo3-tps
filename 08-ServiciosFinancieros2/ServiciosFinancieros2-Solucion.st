@@ -1,5 +1,201 @@
+!classDefinition: #ServiciosFinancierosTests category: 'ServiciosFinancieros-Solucion'!
+TestCase subclass: #ServiciosFinancierosTests
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+
+!classDefinition: #AccountReportTest category: 'ServiciosFinancieros-Solucion'!
+ServiciosFinancierosTests subclass: #AccountReportTest
+	instanceVariableNames: 'anAccount anAccountSummary fiftyPesos twentyPesos stringDeposit50 stringBalance50 stringWithdraw20 anotherAccount anotherAccountSummary anAccountTransferNet zeroPesos thirtyPesos'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/3/2021 04:41:45'!
+setUp
+
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	anAccountSummary := AccountSummary of: anAccount.
+	anotherAccountSummary := AccountSummary of: anotherAccount.
+	
+	anAccountTransferNet := TransferNet of: anAccount.
+	
+	zeroPesos := 0 * peso.
+	twentyPesos := 20 * peso.
+	thirtyPesos := 30 * peso.
+	fiftyPesos := 50 * peso.
+	
+	stringDeposit50 := self stringDeposit: fiftyPesos.
+	stringBalance50 := self stringBalance: fiftyPesos.
+	stringWithdraw20 := self stringWithdraw: twentyPesos.! !
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/1/2021 08:34:14'!
+stringBalance: aBalanceValue
+
+	^ 'Balance = ', aBalanceValue asString.! !
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/1/2021 08:34:51'!
+stringDeposit: aDepositValue
+
+	^ 'Deposito por ', aDepositValue asString.! !
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/1/2021 08:36:43'!
+stringTransferDepositLeg: aTransferDepositLegValue
+
+	^ 'Entrada por transferencia de ', aTransferDepositLegValue asString.! !
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/1/2021 08:36:11'!
+stringTransferWithdrawLeg: aTransferWithdrawLegValue
+
+	^ 'Salida por transferencia de ', aTransferWithdrawLegValue asString.! !
+
+!AccountReportTest methodsFor: 'setup' stamp: 'IA 12/1/2021 08:35:25'!
+stringWithdraw: aWithdrawValue
+
+	^ 'Extracción por ', aWithdrawValue asString.! !
+
+
+!AccountReportTest methodsFor: 'assertions' stamp: 'IA 12/1/2021 10:29:26'!
+assertThat: accountSummary shouldHave: aCollectionSummary
+
+	| resultSummary |
+	
+	resultSummary := accountSummary getReport.
+	
+	self assert: (resultSummary includesAllOf: aCollectionSummary).! !
+
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:00'!
+test01AnAccountSummaryWithAnEmptyAccountShouldHaveBalanceZero
+
+	| expectedResult |
+	
+	expectedResult := OrderedCollection with: 'Balance = 0 * pesos'.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 10:27:50'!
+test02AnAccountSummaryOfAnAccountWithADepositShouldHaveCorrectBalance
+
+	| expectedResult |
+	
+	expectedResult := OrderedCollection with: stringBalance50.
+	
+	Deposit register: fiftyPesos on: anAccount.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:28'!
+test03AnAccountSummaryOfAnAccountWithADepositShouldHaveCorrectDepositAndBalanceReports
+
+	| expectedResult |
+		
+	expectedResult := OrderedCollection with: stringDeposit50 with: stringBalance50.
+	
+	Deposit register: fiftyPesos on: anAccount.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:36'!
+test04AnAccountSummaryOfAnAccountWithADepositAndAWithdrawShouldHaveCorrectBalanceReports
+
+	| expectedResult expectedBalance |
+	
+	expectedBalance := self stringBalance: (fiftyPesos - twentyPesos).
+	expectedResult := OrderedCollection with: stringDeposit50 with: stringWithdraw20 with: expectedBalance.
+	
+	Deposit register: fiftyPesos on: anAccount.
+	Withdraw register: twentyPesos on: anAccount.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/3/2021 04:39:15'!
+test05AnAccountSummaryOfAnAccountWithAnEntryTransferShouldHaveCorrectBalanceReports
+
+	| expectedResult stringEntryTransfer50 |
+	
+	Transfer amount: fiftyPesos from: anotherAccount to: anAccount.
+	
+	stringEntryTransfer50 := self stringTransferDepositLeg: fiftyPesos.
+	
+	expectedResult := OrderedCollection with: stringEntryTransfer50 with: stringBalance50.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/3/2021 04:39:15'!
+test06AnAccountSummaryOfAnAccountWithAnSalientTransferShouldHaveCorrectBalanceReports
+
+	| expectedResult stringSalientTransfer50 stringBalance50Negated |
+	
+	Transfer amount: fiftyPesos from: anAccount to: anotherAccount.
+	
+	stringSalientTransfer50 := self stringTransferWithdrawLeg: fiftyPesos.
+	stringBalance50Negated := self stringBalance: (fiftyPesos negated).
+	
+	expectedResult := OrderedCollection with: stringSalientTransfer50 with: stringBalance50Negated.
+	
+	self assertThat: anAccountSummary shouldHave: expectedResult.! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:47'!
+test07ATransferNetOfANewAccountShouldBeZero
+
+	| expectedResult |
+	
+	expectedResult := '0 * pesos'.
+	
+	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:38'!
+test08ATransferNetOfAnAccountWithNormalDepositShouldBeZero
+
+	| expectedResult |
+	
+	expectedResult := zeroPesos asString.
+	
+	Deposit register: fiftyPesos on: anAccount.
+	
+	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:30'!
+test09ATransferNetOfAnAccountWithNormalWithdrawShouldBeZero
+
+	| expectedResult |
+	
+	expectedResult := zeroPesos asString.
+	
+	Withdraw register: fiftyPesos on: anAccount.
+	
+	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/3/2021 04:39:15'!
+test10ATransferNetOfAnAccountWithAnEntryTransferShouldBeCorrectReport
+
+	| expectedResult |
+	
+	expectedResult := fiftyPesos asString.
+	
+	Transfer amount: fiftyPesos from: anotherAccount to: anAccount.
+	
+	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
+
+!AccountReportTest methodsFor: 'tests' stamp: 'IA 12/3/2021 04:39:15'!
+test11ATransferNetOfAnAccountWithManyTransfersShouldBeCorrectReport
+
+	| expectedResult |
+	
+	expectedResult := thirtyPesos asString.
+	
+	Transfer amount: fiftyPesos from: anotherAccount to: anAccount.
+	Transfer amount: twentyPesos from: anAccount to: anotherAccount.
+	
+	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
+
+
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Solucion'!
-TestCase subclass: #PortfolioTest
+ServiciosFinancierosTests subclass: #PortfolioTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -212,7 +408,7 @@ test15PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Solucion'!
-TestCase subclass: #ReceptiveAccountTest
+ServiciosFinancierosTests subclass: #ReceptiveAccountTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -302,196 +498,8 @@ test07AccountKnowsItsTransactions
 ! !
 
 
-!classDefinition: #TestXXX category: 'ServiciosFinancieros-Solucion'!
-TestCase subclass: #TestXXX
-	instanceVariableNames: 'anAccount anAccountSummary fiftyPesos twentyPesos stringDeposit50 stringBalance50 stringWithdraw20 anAnotherAccount anAnotherAccountSummary anAccountTransferNet zeroPesos'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Solucion'!
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 10:06:07'!
-setUp
-
-	anAccount := ReceptiveAccount new.
-	anAnotherAccount := ReceptiveAccount new.
-	anAccountSummary := AccountSummary of: anAccount.
-	anAnotherAccountSummary := AccountSummary of: anAnotherAccount.
-	
-	anAccountTransferNet := TransferNet of: anAccount.
-	
-	zeroPesos := 0 * peso.
-	fiftyPesos := 50 * peso.
-	twentyPesos := 20 * peso.
-	
-	stringDeposit50 := self stringDeposit: fiftyPesos.
-	stringBalance50 := self stringBalance: fiftyPesos.
-	stringWithdraw20 := self stringWithdraw: twentyPesos.! !
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 08:34:14'!
-stringBalance: aBalanceValue
-
-	^ 'Balance = ', aBalanceValue asString.! !
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 08:34:51'!
-stringDeposit: aDepositValue
-
-	^ 'Deposito por ', aDepositValue asString.! !
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 08:36:43'!
-stringTransferDepositLeg: aTransferDepositLegValue
-
-	^ 'Entrada por transferencia de ', aTransferDepositLegValue asString.! !
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 08:36:11'!
-stringTransferWithdrawLeg: aTransferWithdrawLegValue
-
-	^ 'Salida por transferencia de ', aTransferWithdrawLegValue asString.! !
-
-!TestXXX methodsFor: 'setup' stamp: 'IA 12/1/2021 08:35:25'!
-stringWithdraw: aWithdrawValue
-
-	^ 'Extracción por ', aWithdrawValue asString.! !
-
-
-!TestXXX methodsFor: 'assertions' stamp: 'IA 12/1/2021 10:29:26'!
-assertThat: accountSummary shouldHave: aCollectionSummary
-
-	| resultSummary |
-	
-	resultSummary := accountSummary getReport.
-	
-	self assert: (resultSummary includesAllOf: aCollectionSummary).! !
-
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:00'!
-test01AnAccountSummaryWithAnEmptyAccountShouldHaveBalanceZero
-
-	| expectedResult |
-	
-	expectedResult := OrderedCollection with: 'Balance = 0 * pesos'.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:27:50'!
-test02AnAccountSummaryOfAnAccountWithADepositShouldHaveCorrectBalance
-
-	| expectedResult |
-	
-	expectedResult := OrderedCollection with: stringBalance50.
-	
-	Deposit register: fiftyPesos on: anAccount.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:28'!
-test03AnAccountSummaryOfAnAccountWithADepositShouldHaveCorrectDepositAndBalanceReports
-
-	| expectedResult |
-		
-	expectedResult := OrderedCollection with: stringDeposit50 with: stringBalance50.
-	
-	Deposit register: fiftyPesos on: anAccount.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:36'!
-test04AnAccountSummaryOfAnAccountWithADepositAndAWithdrawShouldHaveCorrectBalanceReports
-
-	| expectedResult expectedBalance |
-	
-	expectedBalance := self stringBalance: (fiftyPesos - twentyPesos).
-	expectedResult := OrderedCollection with: stringDeposit50 with: stringWithdraw20 with: expectedBalance.
-	
-	Deposit register: fiftyPesos on: anAccount.
-	Withdraw register: twentyPesos on: anAccount.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 09:05:43'!
-test05AnAccountSummaryOfAnAccountWithAnEntryTransferShouldHaveCorrectBalanceReports
-
-	| expectedResult stringEntryTransfer50 |
-	
-	Transfer amount: fiftyPesos from: anAnotherAccount to: anAccount.
-	
-	stringEntryTransfer50 := self stringTransferDepositLeg: fiftyPesos.
-	
-	expectedResult := OrderedCollection with: stringEntryTransfer50 with: stringBalance50.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 09:38:12'!
-test06AnAccountSummaryOfAnAccountWithAnSalientTransferShouldHaveCorrectBalanceReports
-
-	| expectedResult stringSalientTransfer50 stringBalance50Negated |
-	
-	Transfer amount: fiftyPesos from: anAccount to: anAnotherAccount.
-	
-	stringSalientTransfer50 := self stringTransferWithdrawLeg: fiftyPesos.
-	stringBalance50Negated := self stringBalance: (fiftyPesos negated).
-	
-	expectedResult := OrderedCollection with: stringSalientTransfer50 with: stringBalance50Negated.
-	
-	self assertThat: anAccountSummary shouldHave: expectedResult.! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:47'!
-test07ATransferNetOfANewAccountShouldBeZero
-
-	| expectedResult |
-	
-	expectedResult := '0 * pesos'.
-	
-	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:38'!
-test08ATransferNetOfAnAccountWithNormalDepositShouldBeZero
-
-	| expectedResult |
-	
-	expectedResult := zeroPesos asString.
-	
-	Deposit register: fiftyPesos on: anAccount.
-	
-	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:07:30'!
-test09ATransferNetOfAnAccountWithNormalWithdrawShouldBeZero
-
-	| expectedResult |
-	
-	expectedResult := zeroPesos asString.
-	
-	Withdraw register: fiftyPesos on: anAccount.
-	
-	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:08:59'!
-test10ATransferNetOfAnAccountWithAnEntryTransferShouldBeCorrectReport
-
-	| expectedResult |
-	
-	expectedResult := fiftyPesos asString.
-	
-	Transfer amount: fiftyPesos from: anAnotherAccount to: anAccount.
-	
-	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
-
-!TestXXX methodsFor: 'tests' stamp: 'IA 12/1/2021 10:25:09'!
-test11ATransferNetOfAnAccountWithManyTransfersShouldBeCorrectReport
-
-	| expectedResult |
-	
-	expectedResult := fiftyPesos asString.
-	
-	Transfer amount: fiftyPesos from: anAnotherAccount to: anAccount.
-	Transfer amount: fiftyPesos from: anAccount to: anAnotherAccount.
-	Transfer amount: fiftyPesos from: anAnotherAccount to: anAccount.
-	
-	self assert: expectedResult equals: (anAccountTransferNet getReport).! !
-
-
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Solucion'!
-TestCase subclass: #TransferTest
+ServiciosFinancierosTests subclass: #TransferTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -632,6 +640,12 @@ isComposedBy: anAccount
 addTransactionsTo: aCollectionOfTransactions
 
 	self subclassResponsibility ! !
+
+
+!Account methodsFor: 'transactions do' stamp: 'IA 12/3/2021 04:23:29'!
+transactionsDo: aBlockToDo
+
+	^ self transactions do: aBlockToDo.! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Solucion'!
@@ -838,6 +852,27 @@ getReport
 
 	^ self subclassResponsibility.! !
 
+
+!AccountReport methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:25'!
+addDepositReportOf: anAccountTransaction
+
+	^ self subclassResponsibility.! !
+
+!AccountReport methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:34'!
+addTransferDepositLegReportOf: anAccountTransaction
+
+	^ self subclassResponsibility.! !
+
+!AccountReport methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:42'!
+addTransferWithdrawLegReportOf: anAccountTransaction
+
+	^ self subclassResponsibility.! !
+
+!AccountReport methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:48'!
+addWithdrawReportOf: anAccountTransaction
+
+	^ self subclassResponsibility.! !
+
 
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Solucion'!
 AccountReport subclass: #AccountSummary
@@ -852,22 +887,39 @@ initializeWith: anAccount
 	account := anAccount.! !
 
 
-!AccountSummary methodsFor: 'report' stamp: 'IA 12/1/2021 10:29:26'!
+!AccountSummary methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
 getReport
 	
-	| summary transactions |
+	| summaryReport |
 	
-	summary := OrderedCollection new.
+	summaryReport := OrderedCollection new.
 	
-	transactions := account transactions.
-	
-	transactions ifEmpty: [^ (OrderedCollection with: 'Balance = 0 * pesos'). ].
-	
-	transactions do: [ :aTransaction | summary add: aTransaction makeReportSummary. ].
+	account transactionsDo: [ :anAccountTransaction | summaryReport add: (anAccountTransaction addReportOn: self). ].
 
-	summary add: ('Balance = ', (account balance) asString).
+	summaryReport add: ('Balance = ', (account balance) asString).
 	
-	^ summary.! !
+	^ summaryReport.! !
+
+
+!AccountSummary methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:25'!
+addDepositReportOf: anAccountTransaction
+
+	^ 'Deposito por ', (anAccountTransaction value) asString.! !
+
+!AccountSummary methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:34'!
+addTransferDepositLegReportOf: anAccountTransaction
+	
+	^ 'Entrada por transferencia de ', (anAccountTransaction value) asString.! !
+
+!AccountSummary methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:42'!
+addTransferWithdrawLegReportOf: anAccountTransaction
+
+	^ 'Salida por transferencia de ', (anAccountTransaction value) asString.! !
+
+!AccountSummary methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:48'!
+addWithdrawReportOf: anAccountTransaction
+
+	^ 'Extracción por ', (anAccountTransaction value) asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -894,20 +946,37 @@ initializeWith: anAccount
 	account := anAccount.! !
 
 
-!TransferNet methodsFor: 'report' stamp: 'IA 12/1/2021 10:34:59'!
+!TransferNet methodsFor: 'report' stamp: 'IA 12/3/2021 04:44:30'!
 getReport
 	
-	| transactions result |
+	| transferNetResult |
 
-	result := 0.
-
-	transactions := account transactions.
+	transferNetResult := 0.
 	
-	transactions do: [ :aTransaction |
-		(aTransaction isKindOf: TransferLeg) ifTrue: [ result := aTransaction affectBalance: result. ].
-	].
+	account transactionsDo: [ :anAccountTransaction | transferNetResult := transferNetResult + (anAccountTransaction addReportOn: self). ].
 
-	(result = 0) ifTrue: [^ '0 * pesos'. ] ifFalse: [ ^ result asString. ] .! !
+	(transferNetResult = 0) ifTrue: [ ^ '0 * pesos'. ] ifFalse: [ ^ transferNetResult asString. ] .! !
+
+
+!TransferNet methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:25'!
+addDepositReportOf: anAccountTransaction
+	
+	^ 0.! !
+
+!TransferNet methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:34'!
+addTransferDepositLegReportOf: anAccountTransaction
+	
+	^ anAccountTransaction affectBalance: 0.! !
+
+!TransferNet methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:42'!
+addTransferWithdrawLegReportOf: anAccountTransaction
+
+	^ anAccountTransaction affectBalance: 0.! !
+
+!TransferNet methodsFor: 'report - visitors' stamp: 'IA 12/3/2021 04:36:48'!
+addWithdrawReportOf: anAccountTransaction
+
+	^ 0.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -928,22 +997,22 @@ Object subclass: #AccountTransaction
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
-value 
-
-	self subclassResponsibility ! !
-
-
 !AccountTransaction methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:39'!
 affectBalance: aBalance
 
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'summary' stamp: 'IA 12/1/2021 09:33:45'!
-makeReportSummary
+!AccountTransaction methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
+addReportOn: anAccountReport
 
 	^ self subclassResponsibility.! !
+
+
+!AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
+value 
+
+	self subclassResponsibility ! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Solucion'!
@@ -953,28 +1022,28 @@ AccountTransaction subclass: #Deposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
-!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
-value
-
-	^ value! !
-
-
 !Deposit methodsFor: 'balance' stamp: 'IA 12/1/2021 10:11:54'!
 affectBalance: aBalance
 
 	^aBalance + value! !
 
 
-!Deposit methodsFor: 'summary' stamp: 'IA 12/1/2021 09:34:48'!
-makeReportSummary
+!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
+initializeFor: aValue
 
-	^ 'Deposito por ', (self value) asString.! !
+	value := aValue ! !
+
+
+!Deposit methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
+addReportOn: anAccountReport
+	
+	^ anAccountReport addDepositReportOf: self.! !
+
+
+!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+value
+
+	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1006,16 +1075,16 @@ AccountTransaction subclass: #TransferLeg
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferLeg methodsFor: 'value' stamp: 'LL 9/20/2020 22:27:32'!
-value
-
-	^transfer value! !
-
-
 !TransferLeg methodsFor: 'initialization' stamp: 'LL 9/20/2020 22:28:14'!
 initializeWith: aTransfer
 
 	transfer := aTransfer! !
+
+
+!TransferLeg methodsFor: 'value' stamp: 'LL 9/20/2020 22:27:32'!
+value
+
+	^transfer value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1053,10 +1122,10 @@ affectBalance: aBalance
 	^aBalance + self value! !
 
 
-!TransferDepositLeg methodsFor: 'summary' stamp: 'IA 12/1/2021 09:35:34'!
-makeReportSummary
-
-	^ 'Entrada por transferencia de ', (self value) asString.! !
+!TransferDepositLeg methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
+addReportOn: anAccountReport
+	
+	^ anAccountReport addTransferDepositLegReportOf: self.! !
 
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Solucion'!
@@ -1078,10 +1147,10 @@ affectBalance: aBalance
 	^aBalance - self value.! !
 
 
-!TransferWithdrawLeg methodsFor: 'summary' stamp: 'IA 12/1/2021 09:35:44'!
-makeReportSummary
-
-	^ 'Salida por transferencia de ', (self value) asString.! !
+!TransferWithdrawLeg methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
+addReportOn: anAccountReport
+	
+	^ anAccountReport addTransferWithdrawLegReportOf: self.! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Solucion'!
@@ -1091,28 +1160,28 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
+!Withdraw methodsFor: 'balance' stamp: 'IA 12/1/2021 10:11:08'!
+affectBalance: aBalance
+
+	^aBalance - value! !
+
+
 !Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
 initializeFor: aValue
 
 	value := aValue ! !
 
 
+!Withdraw methodsFor: 'report' stamp: 'IA 12/3/2021 04:38:31'!
+addReportOn: anAccountReport
+	
+	^ anAccountReport addWithdrawReportOf: self.! !
+
+
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
 
 	^ value! !
-
-
-!Withdraw methodsFor: 'balance' stamp: 'IA 12/1/2021 10:11:08'!
-affectBalance: aBalance
-
-	^aBalance - value! !
-
-!Withdraw methodsFor: 'balance' stamp: 'IA 12/1/2021 09:36:08'!
-makeReportSummary
-
-	^ 'Extracción por ', (self value) asString.! !
-
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
